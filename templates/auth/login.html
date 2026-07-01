@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로그인 — 산재 예방 통합 관제 플랫폼</title>
+<link rel="stylesheet" href="{% static 'css/auth/login.css' %}">
+</head>
+<body class="login-page">
+<div class="login-wrap">
+
+  <!-- 로고 + 플랫폼명 -->
+  <div class="login-logo">
+    <div class="logo-box">
+      <div class="logo-icon">
+        <img src="{% static 'img/logo.jpg' %}" alt="로고">
+      </div>
+      <span class="logo-text">산재 예방 통합 관제 플랫폼</span>
+    </div>
+  </div>
+
+  <!-- ④ 흰색 카드 -->
+  <div class="login-card">
+    <form id="loginForm">
+      <!-- 서버 오류 -->
+      <div id="serverError" class="server-error"></div>
+
+      <!-- ④ 아이디 입력란 -->
+      <div class="form-group">
+        <label for="username">아이디</label>
+        <div class="input-wrap">
+          <input type="text" id="username" name="username"
+                 placeholder="아이디를 입력하세요" autocomplete="username" maxlength="20"
+                 aria-describedby="usernameError">
+          <button type="button" class="clear-btn" id="clearUsername">✕</button>
+        </div>
+        <div class="field-error" id="usernameError" role="alert"></div>
+      </div>
+
+      <!-- ④ 비밀번호 입력란 -->
+      <div class="form-group">
+        <label for="password">비밀번호</label>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password"
+                 placeholder="비밀번호를 입력하세요" autocomplete="current-password" maxlength="100"
+                 aria-describedby="passwordError">
+          <button type="button" class="clear-btn" id="clearPassword">✕</button>
+        </div>
+        <div class="field-error" id="passwordError" role="alert"></div>
+      </div>
+
+      <!-- ⑤ 로그인 버튼 -->
+      <button type="submit" class="login-btn" id="loginBtn">로그인</button>
+    </form>
+  </div>
+
+  <!-- ⑥ 로그인 관련 문의 문구 -->
+  <div class="login-footer">
+    로그인 관련 문의<br>
+    {{ contact_info }}
+  </div>
+
+</div>
+
+
+
+
+
+
+<!-- Lesson 01 skeleton login script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("loginForm");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const serverError = document.getElementById("serverError");
+
+    if (!form) return;
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const username = usernameInput ? usernameInput.value.trim() : "admin";
+      const password = passwordInput ? passwordInput.value : "";
+
+      if (!username) {
+        if (serverError) {
+          serverError.textContent = "아이디를 입력해주세요.";
+          serverError.classList.add("show");
+        }
+        return;
+      }
+
+      if (password.length < 8) {
+        if (serverError) {
+          serverError.textContent = "비밀번호는 8자 이상 입력해주세요.";
+          serverError.classList.add("show");
+        }
+        return;
+      }
+
+      localStorage.setItem("skeleton_username", username);
+      localStorage.setItem("skeleton_role", "admin");
+
+      window.location.href = "/dashboard/";
+    });
+  });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,994 @@
+/* ==========================================================
+   dashboard.css — 산재 예방 통합 관제 시스템
+   통합 출처: style.css + CJY.css + dashboard_sh.html 인라인 CSS
+             + dashboard_CJY.css (전력 패널 UI 확장 스타일 병합)
+
+   ※ 헤더 / SNB / 로그아웃 모달 / 스피너 스타일은
+      header.css 로 분리되었습니다.
+   ========================================================== */
+
+/* ── 리셋 & CSS 변수 ─────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0d1117; --bg2: #161b22; --bg3: #1c2128;
+  --border: #30363d; --text: #e6edf3; --text2: #8b949e;
+  --danger: #f85149; --caution: #e3b341; --safe: #3fb950;
+  --blue: #58a6ff; --accent: #1f6feb;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 12px; height: 100vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* ── 바디 레이아웃 ───────────────────────────────────────── */
+.body-wrap {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 6px; flex: 1; overflow: hidden;
+  height: calc(100vh - 52px);
+}
+.top-row    { display: flex; gap: 6px; flex: 1; overflow: hidden; min-height: 0; }
+.col-left   { display: flex; flex-direction: column; gap: 6px; width: 260px; flex-shrink: 0; }
+.col-mid    { flex: 1; display: flex; flex-direction: column; }
+.col-right  { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; }
+/* 4 패널 비율 — 표:차트 = 1:1.2 (좌 가스 표/차트 / 우 전력 표/차트).
+   2026-05-27: 1:2 → 표 16.7% 너무 좁아 라벨 세로 줄바꿈, 1:1.5 → 전력 표 "보조 모터" 등 끊김.
+   1:1.2 로 보수적 절충 (표 22.7% / 차트 27.3%) — 표 라벨 가독성 확보 + 차트 폭 소폭 확장 유지. */
+.bottom-row { display: grid; grid-template-columns: 1fr 1.2fr 1fr 1.2fr; gap: 6px; height: 320px; flex-shrink: 0; }
+
+/* ── 공통 패널 ───────────────────────────────────────────── */
+.panel {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; overflow: hidden;
+}
+.panel-title {
+  font-size: 12px; font-weight: 700; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+  white-space: nowrap; overflow: hidden;
+}
+.more    { color: var(--blue); font-size: 11px; cursor: pointer; font-weight: 400; flex-shrink: 0; margin-left: 4px; }
+.sub     { font-size: 11px; color: var(--text2); }
+.fw      { font-weight: 700; }
+.danger-text  { color: var(--danger); }
+.caution-text { color: var(--caution); }
+.safe-text    { color: var(--safe); }
+
+/* ── 패널 8: 나의 안전확인 ───────────────────────────────── */
+.safety-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.safety-item:last-of-type { border-bottom: none; }
+.done { color: var(--safe); font-weight: 700; }
+.todo { color: var(--danger); font-weight: 700; }
+.safety-btn {
+  width: 100%; margin-top: 8px; background: var(--bg3);
+  border: 1px solid var(--border); color: var(--text);
+  padding: 7px; border-radius: 5px; cursor: pointer;
+  font-size: 12px; font-family: inherit;
+}
+
+/* ── 패널 11(구): 도넛 차트형 작업자 현황 (dashboard_jh / dashboard_sh 호환) ── */
+.donut-wrap  { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.donut       { width: 80px; height: 80px; border-radius: 50%; flex-shrink: 0; background: conic-gradient(var(--danger) 0% 10%, var(--caution) 10% 25%, var(--safe) 25% 100%); display: flex; align-items: center; justify-content: center; }
+.donut-inner { width: 54px; height: 54px; background: var(--bg2); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.donut-status { font-size: 12px; font-weight: 700; color: var(--safe); }
+.legend      { display: flex; flex-direction: column; gap: 6px; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.dot         { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dot.danger  { background: var(--danger); }
+.dot.caution { background: var(--caution); }
+.dot.safe    { background: var(--safe); }
+
+/* ── 패널 9: 실시간 모니터링 맵 ─────────────────────────── */
+.panel-map  { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.map-tabs   { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.map-tab    { padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; background: var(--bg3); border: 1px solid var(--border); color: var(--text2); font-family: inherit; }
+.map-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.map-area   { flex: 1; background: #1a2332; border: 1px solid var(--border); border-radius: 6px; position: relative; overflow: hidden; min-height: 0; padding: 0; }
+.map-grid   { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 40px 40px; opacity: .3; }
+
+/* ── Leaflet 맵 컨테이너 ────────────────────────────────── */
+#map {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  background: #1c2128;
+  border-radius: 4px;
+}
+.leaflet-popup-content-wrapper {
+  background: #1c2128; color: #e6edf3;
+  border: 1px solid #30363d; border-radius: 6px;
+  font-size: 11px; font-family: 'Malgun Gothic', sans-serif;
+}
+.leaflet-popup-tip           { background: #1c2128; }
+.leaflet-popup-content       { margin: 8px 12px; line-height: 1.8; }
+.popup-title                 { font-weight: 700; font-size: 12px; margin-bottom: 4px; color: #58a6ff; }
+.popup-status-normal         { color: #3fb950; }
+.popup-status-caution        { color: #e3b341; }
+.popup-status-danger         { color: #f85149; }
+
+/* ── WebSocket 연결 상태 배지 ───────────────────────────── */
+.ws-status {
+  font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  margin-left: 8px; background: #30363d; color: #8b949e;
+}
+.ws-status.connected { background: #0d3822; color: #3fb950; }
+.ws-status.error     { background: #3d1a1a; color: #f85149; }
+
+/* ── 패널 10: 이벤트 현황 ───────────────────────────────── */
+.event-item    { padding: 7px 0; border-bottom: 1px solid var(--border); transition: background-color .3s ease, border-color .3s ease; }
+.event-item:hover { background: rgba(255, 255, 255, .03); }
+.event-head    { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 12px; margin-bottom: 3px; }
+.event-head > span:first-child { display: flex; align-items: center; gap: 6px; }
+.event-desc    { font-size: 11px; padding-left: 22px; }
+/* event-icon — alarm_type 별 Lucide SVG (2026-05-17 이모지 대체).
+   lucide.createIcons() 가 <i data-lucide> 를 <svg class="event-icon"> 로 replace.
+   width/height 는 CSS 우선 (HTML 속성보다 강함). stroke 는 currentColor 라
+   부모 텍스트 색 자동 적용 (위험도 색 매핑은 추후 .event-head 에 colorClass 도입 시). */
+.event-icon    { display: inline-block; vertical-align: middle; width: 16px; height: 16px; stroke-width: 1.75; flex-shrink: 0; }
+.event-summary { margin-top: 8px; padding: 7px; background: var(--bg3); border-radius: 5px; font-size: 11px; color: var(--text2); line-height: 1.8; }
+.event-summary-icon { color: var(--accent); margin-right: 4px; }
+
+/* 미확인 카운트 강조 박스 (원안 미확인 N건 표시) */
+.event-unack {
+  margin: 8px 0;
+  padding: 8px 10px;
+  background: rgba(248, 81, 73, .12);
+  border: 1px solid rgba(248, 81, 73, .4);
+  border-radius: 5px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.event-unack-label { font-weight: 700; color: var(--text); }
+.event-unack-count { font-weight: 800; font-size: 14px; }
+.event-unack-hint  { color: var(--text2); font-size: 11px; }
+
+/* 새 항목 강조 — fadeIn + border 깜빡 (3초) */
+@keyframes event-item-flash {
+  0%   { background: rgba(248, 81, 73, .25); border-color: var(--danger); }
+  60%  { background: rgba(248, 81, 73, .10); border-color: rgba(248, 81, 73, .5); }
+  100% { background: transparent; border-color: var(--border); }
+}
+.event-item--new {
+  animation: event-item-flash 3s ease-out;
+}
+
+/* 정상화 burst 그룹 — "외 N건" 배지 + 펼침 디바이스 목록 */
+.event-clear-more {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text2);
+  background: var(--bg3);
+  padding: 1px 6px;
+  border-radius: 8px;
+  user-select: none;
+}
+.event-clear-more:hover {
+  color: var(--text);
+  background: var(--bg2, #21262d);
+}
+.event-clear-sources {
+  margin: 6px 0 0 22px;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  color: var(--text2);
+}
+.event-clear-sources li {
+  padding: 2px 0;
+}
+
+/* source 단위 그룹 (2026-05-17) — 같은 가스 센서/전력 장비/지오펜스의 30분 윈도우
+   알람 묶음. 1건일 땐 일반 event-item 과 외형 동일 (moreEl/itemsEl hidden).
+   추가 알람 도착 시 moreEl 표시 + 위험도 색 갱신 + 펼침 list 채움. */
+.event-source-more {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text2);
+  background: var(--bg3);
+  padding: 1px 6px;
+  border-radius: 8px;
+  user-select: none;
+}
+.event-source-more:hover {
+  color: var(--text);
+  background: var(--bg2, #21262d);
+}
+.event-source-other-types {
+  font-weight: 500;
+  margin-left: 3px;
+  opacity: 0.85;
+}
+.event-source-items {
+  margin: 6px 0 0 22px;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  color: var(--text2);
+}
+.event-source-items li {
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 3px;
+}
+.event-source-items li:hover {
+  background: rgba(255, 255, 255, .04);
+}
+.event-source-items li > i + span {
+  flex: 1;
+  min-width: 0;
+}
+.event-source-li-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 12px;
+  height: 12px;
+  stroke-width: 1.75;
+  flex-shrink: 0;
+}
+.event-source-li-time {
+  color: var(--text2);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+/* ── 공통 테이블 ────────────────────────────────────────── */
+.tbl          { width: 100%; border-collapse: collapse; font-size: 11px; }
+.tbl th       { color: var(--text2); font-weight: 500; padding: 2px 3px; text-align: left; border-bottom: 1px solid var(--border); }
+.tbl td       { padding: 2px 3px; }
+.gas-row.danger  { background: rgba(248, 81, 73, .12); }
+.gas-row.caution { background: rgba(227, 179, 65, .12); }
+.brisk        { padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: 700; }
+.brisk.danger  { background: var(--danger); color: #fff; }
+.brisk.caution { background: var(--caution); color: #0d1117; }
+.brisk.safe    { background: var(--safe); color: #0d1117; }
+
+/* ── 패널 12: 유해가스 현황 ─────────────────────────────── */
+.sensor-tag {
+  display: inline-block; background: var(--bg3);
+  border: 1px solid var(--blue); color: var(--blue);
+  font-size: 10px; padding: 1px 7px; border-radius: 10px; margin-bottom: 6px;
+}
+
+/* ── 패널 13, 15: AI 예측 차트 ──────────────────────────── */
+.ai-nav    { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.ai-vals   { display: flex; gap: 14px; margin-bottom: 6px; }
+.big       { font-size: 18px; font-weight: 700; }
+.panel-chart { display: flex; flex-direction: column; }
+.chart-wrap  { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-top: 4px; background: var(--bg3); border-radius: 5px; padding: 6px; }
+.chart-controls { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; margin-bottom: 4px; }
+.scale-btns { display: flex; align-items: center; gap: 3px; }
+.scale-btn  { background: var(--bg2); border: 1px solid var(--border); color: var(--text); width: 20px; height: 20px; border-radius: 3px; cursor: pointer; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; }
+.scale-btn:hover  { border-color: var(--blue); color: var(--blue); }
+.scale-btn.scale-reset { font-size: 11px; }
+.scale-val  { font-size: 10px; color: var(--text2); min-width: 42px; text-align: center; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; height: 20px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.chart-wrap canvas { flex: 1; min-height: 0; width: 100% !important; }
+
+/* ── 패널 14: 전력 현황 ─────────────────────────────────── */
+.power-total { font-size: 20px; font-weight: 700; margin: 2px 0; }
+
+/* ── 패널 15: AI 예측 전력 ETA ──────────────────────────── */
+.eta-box { background: rgba(248, 81, 73, .1); border: 1px solid var(--danger); border-radius: 5px; padding: 5px 8px; margin-bottom: 6px; }
+.eta-val { font-size: 15px; font-weight: 700; color: var(--danger); }
+
+/* ================================================================
+   전력 패널 UI 확장 스타일 (dashboard_CJY.css 병합)
+================================================================ */
+
+/* ── 전력 패널 제목 크기 오버라이드 ──────────────────────── */
+#powerPanel .panel-title {
+  font-size: 14px;
+}
+
+/* ── 상세 보기 링크 ────────────────────────────────────────── */
+a.more {
+  text-decoration: none;
+}
+
+/* ── AI 패널 총 전력 요약 바 ───────────────────────────────── */
+.power-summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+.power-summary-bar .fw   { color: var(--text1, #e6edf3); }
+.power-summary-bar .pipe { color: #30363d; }
+
+/* ── ON/OFF 배지 ───────────────────────────────────────────── */
+.brisk.on  { background: var(--safe);    color: #0d1117; }
+.brisk.off { background: #30363d;        color: var(--text2); }
+
+/* ── 오류/통신불능 배지 (gray) ────────────────────────────── */
+.brisk.gray { background: #30363d; color: var(--text2); }
+
+/* ── 패널 상태 메시지 ─────────────────────────────────────── */
+.panel-msg {
+  text-align: center;
+  padding: 12px 0;
+  color: var(--text2);
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ── 스켈레톤 UI (Loading 상태) ───────────────────────────── */
+@keyframes skel-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+.skeleton {
+  display: inline-block;
+  background: #30363d;
+  border-radius: 3px;
+  animation: skel-pulse 1.4s ease-in-out infinite;
+}
+.skel-text  { width: 60px;  height: 10px; }
+.skel-sm    { width: 36px;  height: 10px; }
+.skel-badge { width: 28px;  height: 14px; border-radius: 3px; }
+
+/* ── 전력 KPI 박스 (총 전력 사용량 표시 영역) ─────────────── */
+.power-kpi-box {
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--blue, #58a6ff);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+.power-kpi-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* ── AI 예측 패널 KPI 박스 ──────────────────────────────── */
+/* AI 예측 KPI 박스 — hero 영역 (현재값 + 예측 최대값 강조).
+   2026-05-27 디자인 다듬기 2nd: 첫 시도 28px+padding 14 는 hero 비대 → 차트 영역 잠식.
+   20px + padding 6 로 축소해 차트 영역 회복하되 기본 .big 18px 보단 약간 키워 가독성 유지. */
+.ai-kpi-box {
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--blue, #58a6ff);
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+}
+.ai-kpi-box .big {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.ai-kpi-box .ai-kpi-item .sub {
+  font-size: 10px;
+  color: var(--text2, #8b949e);
+  margin-bottom: 2px;
+}
+.ai-kpi-box .eta-val {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--danger);
+  line-height: 1.15;
+}
+/* power 패널의 aiPowerMaxLoad 가 inline style font-size:14px 로 박혀있어 hero 와 안 맞음.
+   .ai-kpi-box 안의 .fw 를 .big 와 동일 시각으로 일치 (inline style override). */
+.ai-kpi-box .fw#aiPowerMaxLoad {
+  font-size: 18px !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+/* ── ai-nav: 장비명 + 방향 버튼 ─────────────────────────── */
+.ai-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.ai-equip-name {
+  font-size: 18px;
+  border-left: 3px solid var(--danger, #f85149);
+  padding-left: 8px;
+  line-height: 1.2;
+}
+.ai-nav-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ai-nav-btn {
+  background: transparent;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  color: var(--text1, #e6edf3);
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.ai-nav-btn:hover { background: rgba(255, 255, 255, 0.1); }
+
+.ai-kpi-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0;
+}
+.ai-kpi-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.ai-kpi-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 10px;
+  align-self: stretch;
+}
+.ai-kpi-right { text-align: right; }
+
+/* powerChangePct: 큰 숫자 오른쪽 하단 정렬 */
+.power-kpi-row #powerChangePct {
+  font-size: 11px;
+  padding-bottom: 3px;
+  white-space: nowrap;
+}
+
+/* ── 전력 테이블 스크롤 래퍼 ──────────────────────────────── */
+.tbl-scroll {
+  overflow-y: auto;
+  max-height: 220px;
+  border-radius: 10px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.tbl-scroll::-webkit-scrollbar       { width: 4px; }
+.tbl-scroll::-webkit-scrollbar-track { background: transparent; }
+.tbl-scroll::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+
+/* thead 고정 — 스크롤 시 컬럼 헤더 유지 */
+#powerPanel .tbl thead th,
+#gasPanel .tbl thead th {
+  position: sticky;
+  top: 0;
+  background: #1c2128;
+  z-index: 1;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text2, #8b949e);
+  font-weight: 500;
+}
+#powerPanel .tbl,
+#gasPanel .tbl {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#powerPanel .tbl td,
+#gasPanel .tbl td {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #e6edf3;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+#powerPanel .tbl tbody tr:last-child td,
+#gasPanel .tbl tbody tr:last-child td { border-bottom: none; }
+
+/* ── risk-level별 행 배경색 ─────────────────────────────── */
+.risk-row.risk-danger  { background: rgba(220, 38, 38, 0.55); }
+.risk-row.risk-danger td  { color: #fecaca; font-weight: 600; }
+.risk-row.risk-caution { background: rgba(202, 138, 4, 0.45); }
+.risk-row.risk-caution td { color: #fef08a; font-weight: 600; }
+.risk-row.risk-safe    { background: transparent; }
+.risk-row.risk-danger:hover  { background: rgba(220, 38, 38, 0.75); }
+.risk-row.risk-caution:hover { background: rgba(202, 138, 4, 0.65); }
+.risk-row.risk-safe:hover    { background: rgba(40, 55, 75, 0.5); }
+
+/* ================================================================
+   MN-04 작업자 현황 패널 (출처: CJY.css)
+   작업자 뷰(B View) + 관리자 뷰(D View)
+================================================================ */
+
+/* ── 공통 ── */
+.mn04-error { font-size: 11px; color: var(--danger); margin-top: 6px; text-align: center; }
+
+/* ── 작업자 뷰 (B View): 가로 상태 바 ── */
+#mn04-view-worker { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+
+/* 작업자 현재 상태 블록 */
+.mn04-worker-status-block {
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; padding: 14px 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  transition: background .3s, border-color .3s;
+}
+.mn04-status-text { font-size: 22px; font-weight: 700; color: var(--text2); transition: color .3s; }
+
+.mn04-worker-status-block.normal  { background: rgba(45,158,117,.1);  border-color: #2d9e75; }
+.mn04-worker-status-block.normal  .mn04-status-text { color: #2d9e75; }
+.mn04-worker-status-block.warning { background: rgba(239,159,39,.1);  border-color: #ef9f27; }
+.mn04-worker-status-block.warning .mn04-status-text { color: #ef9f27; }
+.mn04-worker-status-block.danger  { background: rgba(226,75,74,.12);  border-color: #e24b4a; animation: mn04-pulse 1.8s ease-in-out infinite; }
+.mn04-worker-status-block.danger  .mn04-status-text { color: #e24b4a; }
+
+/* ── 관리자 뷰 (D View): KPI 카드 + 미니 비율 바 ── */
+#mn04-view-admin { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+
+/* ── 관리자 작업자 현황 — 신규 레이아웃 ── */
+.mn04-total-row   { display: flex; align-items: baseline; gap: 5px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.mn04-total-label { font-size: 11px; color: var(--text2); }
+.mn04-total-value { font-size: 20px; font-weight: 700; color: var(--text); margin-left: auto; }
+.mn04-total-unit  { font-size: 11px; color: var(--text2); }
+
+.mn04-admin-body  { display: flex; gap: 10px; align-items: stretch; }
+
+/* 좌: 위험 강조 블록 */
+.mn04-danger-block {
+  flex: 0 0 72px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 4px;
+  transition: background .3s, border-color .3s;
+}
+.mn04-danger-label { font-size: 10px; color: var(--text2); margin-bottom: 4px; }
+.mn04-danger-count { font-size: 28px; font-weight: 700; color: var(--text2); line-height: 1; }
+.mn04-danger-unit  { font-size: 10px; color: var(--text2); margin-top: 2px; }
+
+/* 위험 인원 > 0 일 때 강조 */
+.mn04-danger-block.active {
+  background: rgba(226,75,74,.12);
+  border-color: #e24b4a;
+  animation: mn04-pulse 1.8s ease-in-out infinite;
+}
+.mn04-danger-block.active .mn04-danger-label,
+.mn04-danger-block.active .mn04-danger-count,
+.mn04-danger-block.active .mn04-danger-unit { color: #e24b4a; }
+
+@keyframes mn04-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(226,75,74,.45); }
+  50%       { box-shadow: 0 0 0 6px rgba(226,75,74,0); }
+}
+
+/* 우: 상세 현황 */
+.mn04-breakdown    { flex: 1; display: flex; flex-direction: column; justify-content: space-around; }
+.mn04-bd-row       { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.mn04-bd-dot       { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.mn04-bd-label     { color: var(--text2); flex: 1; }
+.mn04-bd-value     { font-weight: 700; color: var(--text); }
+.mn04-bd-danger-val { color: #e24b4a; }
+.mn04-bd-unit      { font-size: 10px; color: var(--text2); }
+
+.mn04-ratio-bar     { display: flex; height: 6px; border-radius: 4px; overflow: hidden; background: var(--bg3); }
+.mn04-ratio-normal  { background: #2d9e75; }
+.mn04-ratio-warning { background: #ef9f27; }
+.mn04-ratio-danger  { background: #e24b4a; }
+
+/* ── CM-07 실시간 알림 팝업 ──────────────────────────────── */
+/* ── CM-07 알람 팝업 ──────────────────────────────────────── */
+#alarm-popup {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1100;
+  width: 440px; border-radius: 12px;
+  padding: 20px;  /* 4면 균등 */
+  background: #1e1e2e;
+  /* 4면 균일 2px — 좌측 강조는 글로우 펄스(level-danger/warning)가 담당 */
+  border: 2px solid var(--danger);
+  box-shadow: 0 6px 24px rgba(0,0,0,.5), 0 0 20px rgba(248,81,73,.35);
+  transition: border-color .2s, box-shadow .2s;
+}
+/* danger 레벨 — 빨간 글로우 펄스로 운영자 시선 강제 (P2 추가) */
+#alarm-popup.level-danger {
+  animation: alarm-popup-glow-danger 1.4s ease-in-out infinite;
+}
+@keyframes alarm-popup-glow-danger {
+  0%, 100% { box-shadow: 0 6px 24px rgba(0,0,0,.5), 0 0 16px rgba(248,81,73,.4); }
+  50%      { box-shadow: 0 6px 24px rgba(0,0,0,.5), 0 0 36px rgba(248,81,73,.85); }
+}
+/* warning 레벨 — 노란 테두리 + 약한 펄스 */
+#alarm-popup.level-warning {
+  border-color: var(--caution);
+  box-shadow: 0 6px 24px rgba(0,0,0,.5), 0 0 18px rgba(227,179,65,.35);
+  animation: alarm-popup-glow-warning 1.8s ease-in-out infinite;
+}
+@keyframes alarm-popup-glow-warning {
+  0%, 100% { box-shadow: 0 6px 24px rgba(0,0,0,.5), 0 0 14px rgba(227,179,65,.35); }
+  50%      { box-shadow: 0 6px 24px rgba(0,0,0,.5), 0 0 28px rgba(227,179,65,.65); }
+}
+/* 상단 행: 발생 시간 + 닫기 */
+.alarm-popup-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.alarm-popup-time-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.06); border-radius: 20px;
+  padding: 3px 10px; font-size: 11px; color: var(--text2);
+}
+.alarm-popup-time-label {
+  font-weight: 600; color: var(--text2);
+}
+#alarm-popup-time { color: var(--text); }
+#alarm-popup-close {
+  background: none; border: none; color: var(--text2);
+  cursor: pointer; font-size: 16px; padding: 0; line-height: 1;
+}
+/* 그룹 카운트 — 우상단 원형 뱃지 (동일 센서·레벨 연속 알람) */
+.alarm-popup-count {
+  position: absolute; top: -10px; right: -10px;
+  min-width: 26px; height: 26px; padding: 0 7px;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--danger); color: #fff;
+  font-size: 12px; font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  border: 2px solid #1e1e2e;
+}
+.alarm-popup-count.pulse {
+  animation: alarm-count-pulse 1.2s ease-in-out infinite;
+}
+@keyframes alarm-count-pulse {
+  0%, 100% { transform: scale(1);   box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+  50%      { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(248,81,73,.25); }
+}
+/* 큐 풀 누락 배지 — 헤더 가운데 (확인 가능 영역으로 클릭 유도) */
+.alarm-popup-drop-badge {
+  background: rgba(248,81,73,.18); border: 1px solid var(--danger);
+  color: var(--danger); border-radius: 12px;
+  padding: 2px 9px; font-size: 10.5px; font-weight: 600;
+  cursor: pointer; line-height: 1.4;
+  margin: 0 6px;
+}
+.alarm-popup-drop-badge:hover { background: rgba(248,81,73,.3); }
+/* 중앙: 아이콘 + 알림 유형 */
+.alarm-popup-icon-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; margin-bottom: 12px;
+}
+.alarm-popup-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  background: rgba(248,81,73,.15); color: var(--danger);
+}
+.alarm-popup-icon.caution { background: rgba(227,179,65,.15); color: var(--caution); }
+.alarm-popup-icon.safe    { background: rgba(63,185,80,.15);  color: var(--safe); }
+.alarm-popup-type-label {
+  font-size: 11px; color: var(--text2); letter-spacing: .5px;
+}
+/* 행동 메시지 */
+.alarm-popup-action {
+  text-align: center; font-size: 18px; font-weight: 700;
+  margin: 0 0 12px; color: var(--danger);
+}
+.alarm-popup-action.caution-text { color: var(--caution); }
+.alarm-popup-action.safe-text    { color: var(--safe); }
+/* 배지 + 상세 내용 행 */
+.alarm-popup-desc-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 14px; font-size: 12px; color: var(--text);
+}
+/* "위험"/"주의" 배지 — 폭/폰트 키워 가독성 강화 */
+.alarm-popup-desc-row .brisk {
+  font-size: 13px; font-weight: 700;
+  padding: 4px 10px; border-radius: 4px;
+  flex-shrink: 0; line-height: 1.2;
+  letter-spacing: 0.5px;
+}
+.alarm-popup-desc { line-height: 1.65; flex: 1; font-size: 13px; word-break: keep-all; }
+/* 센서 이름 — 메시지와 분리해 한 줄로 강조 */
+.alarm-popup-desc .sensor-name {
+  display: block;
+  font-size: 14px; font-weight: 700; color: var(--text);
+  margin-bottom: 4px;
+}
+/* 메시지 본문 — 운영자가 가장 빨리 읽어야 하므로 밝은 색상 */
+.alarm-popup-desc .msg-body {
+  display: block;
+  color: var(--text);
+}
+/* 임계값 컨텍스트 — 메시지 아래 한 줄로 "기준 X 초과 (측정 Y)" 표시 */
+.alarm-popup-desc .msg-threshold {
+  display: block;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  font-size: 12px; font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.2px;
+}
+/* 하단 버튼 행 */
+.alarm-popup-btn-row {
+  display: flex; gap: 8px;
+}
+.alarm-popup-btn-detail,
+.alarm-popup-btn-confirm {
+  flex: 1; padding: 7px 0; border-radius: 5px;
+  font-size: 12px; font-family: inherit; cursor: pointer;
+}
+.alarm-popup-btn-detail {
+  background: none; border: 1px solid var(--border); color: var(--text2);
+}
+.alarm-popup-btn-detail:hover { border-color: var(--text); color: var(--text); }
+.alarm-popup-btn-confirm {
+  background: var(--blue); border: 1px solid var(--blue); color: #fff;
+}
+.alarm-popup-btn-confirm:hover { opacity: .85; }
+
+/* ── CM-07 정상화 토스트 (우하단 비차단형) ──────────────── */
+#alarm-toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 1100;
+  display: flex; align-items: center; gap: 10px;
+  width: 300px; padding: 12px 14px; border-radius: 8px;
+  background: #1e1e2e; border-left: 4px solid var(--safe);
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  animation: toast-in .25s ease;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.alarm-toast-icon {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(63,185,80,.15); color: var(--safe); font-size: 16px; font-weight: 700;
+}
+.alarm-toast-body  { flex: 1; min-width: 0; }
+.alarm-toast-title { font-size: 11px; font-weight: 600; color: var(--safe); margin-bottom: 2px; }
+.alarm-toast-msg   { font-size: 11px; color: var(--text2); line-height: 1.4;
+                     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#alarm-toast-close {
+  background: none; border: none; color: var(--text2);
+  cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;
+}
+
+/* ── WebSocket 연결 상태 배너 (P3 공용) ─────────────────── */
+/* monitoring_power/workers/realtime에서 include 후 사용. gas 페이지의
+   기존 #gas-conn-banner와는 별개 (마이그레이션 별도 sprint). */
+.ws-conn-banner {
+  margin-bottom: 10px;
+}
+.ws-conn-msg {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(56, 139, 253, 0.08);
+  border: 1px solid rgba(56, 139, 253, 0.3);
+  border-radius: 6px;
+  padding: 9px 14px;
+  font-size: 12px; color: var(--text2);
+}
+/* .conn-spinner는 gas_monitoring.css에서 정의됨 — 공유 사용.
+   gas 페이지 미로드 시(예: power 페이지) 정의 누락 방지를 위해 fallback 추가. */
+.ws-conn-banner .conn-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(56, 139, 253, 0.25);
+  border-top-color: #58a6ff;
+  border-radius: 50%; flex-shrink: 0;
+  animation: conn-spin 0.8s linear infinite;
+}
+@keyframes conn-spin { to { transform: rotate(360deg); } }
+
+/* ── 서브 페이지 공통 ────────────────────────────────────── */
+.page-wrap        { padding: 16px; }
+.page-header      { margin-bottom: 12px; }
+.breadcrumb       { font-size: 12px; color: var(--text2); }
+.checklist-panel  { max-width: 780px; }
+.checklist-tbl td:first-child { width: 48px; text-align: center; color: var(--text2); }
+.checklist-tbl td:last-child  { width: 100px; }
+
+/* ── 지오펜스 드로잉 UI ─────────────────────────────── */
+
+/* 드로잉 툴바 — 지도 우상단에 고정 */
+#geofence-toolbar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  display: flex;
+  gap: 6px;
+}
+
+.geofence-draw-btn {
+  background: #1f6feb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  transition: background 0.2s;
+}
+.geofence-draw-btn:hover { background: #388bfd; }
+
+.geofence-cancel-btn {
+  background: #3d1f1f;
+  color: #f85149;
+  border: 1px solid #f85149;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  transition: background 0.2s;
+}
+.geofence-cancel-btn:hover { background: #5a2020; }
+
+/* 지오펜스 저장 모달 — 화면 중앙 */
+#geofence-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.geofence-modal-box {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 24px;
+  width: 320px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.geofence-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-bottom: 16px;
+}
+
+.geofence-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.geofence-modal-body label {
+  font-size: 11px;
+  color: #8b949e;
+  margin-bottom: 2px;
+}
+
+.geofence-modal-body input,
+.geofence-modal-body select {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e6edf3;
+  padding: 6px 10px;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.geofence-modal-body input:focus,
+.geofence-modal-body select:focus {
+  outline: none;
+  border-color: #1f6feb;
+}
+
+.geofence-modal-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+.geofence-modal-footer button {
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#btn-geofence-save {
+  background: #1f6feb;
+  color: #fff;
+}
+#btn-geofence-save:hover { background: #388bfd; }
+
+#btn-geofence-discard {
+  background: #21262d;
+  color: #8b949e;
+  border: 1px solid #30363d !important;
+}
+#btn-geofence-discard:hover { background: #30363d; }
+
+/* ── 시연 시나리오 패널 (영상 녹화 컨트롤) ───────────────── */
+.scenario-panel { margin-top: auto; }
+.scenario-desc {
+  font-size: 11px; color: var(--text2); line-height: 1.4;
+  margin-bottom: 10px;
+}
+.scenario-btns {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.scenario-btn {
+  padding: 8px 4px; border-radius: 5px;
+  font-size: 11px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: background .15s ease, box-shadow .15s ease;
+  border: 1px solid transparent; letter-spacing: .5px;
+}
+
+/* 혼합 (gray) */
+.scenario-btn[data-mode="mixed"] {
+  background: rgba(139,148,158,.12); border-color: rgba(139,148,158,.4);
+  color: var(--text2);
+}
+.scenario-btn[data-mode="mixed"]:hover     { background: rgba(139,148,158,.25); }
+.scenario-btn[data-mode="mixed"].active    {
+  background: var(--text2); border-color: var(--text2); color: #fff;
+  box-shadow: 0 0 0 2px rgba(139,148,158,.3);
+}
+
+/* 정상 (green) */
+.scenario-btn[data-mode="normal"] {
+  background: rgba(63,185,80,.12); border-color: rgba(63,185,80,.45);
+  color: var(--safe);
+}
+.scenario-btn[data-mode="normal"]:hover    { background: rgba(63,185,80,.25); }
+.scenario-btn[data-mode="normal"].active   {
+  background: var(--safe); border-color: var(--safe); color: #fff;
+  box-shadow: 0 0 0 2px rgba(63,185,80,.3);
+}
+
+/* 주의 (yellow) */
+.scenario-btn[data-mode="warning"] {
+  background: rgba(227,179,65,.12); border-color: rgba(227,179,65,.45);
+  color: var(--caution);
+}
+.scenario-btn[data-mode="warning"]:hover   { background: rgba(227,179,65,.25); }
+.scenario-btn[data-mode="warning"].active  {
+  background: var(--caution); border-color: var(--caution); color: #1a1a1a;
+  box-shadow: 0 0 0 2px rgba(227,179,65,.3);
+}
+
+/* 위험 (red) */
+.scenario-btn[data-mode="danger"] {
+  background: rgba(248,81,73,.12); border-color: rgba(248,81,73,.45);
+  color: var(--danger);
+}
+.scenario-btn[data-mode="danger"]:hover    { background: rgba(248,81,73,.25); }
+.scenario-btn[data-mode="danger"].active   {
+  background: var(--danger); border-color: var(--danger); color: #fff;
+  box-shadow: 0 0 0 2px rgba(248,81,73,.3);
+}
+
+/* 상태 라벨 — 현재 모드에 맞춰 컬러 동기화 */
+#scenario-status {
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 10px;
+  background: rgba(139,148,158,.15); color: var(--text2);
+}
+#scenario-status[data-mode="mixed"]   { background: rgba(139,148,158,.2);  color: var(--text2);  }
+#scenario-status[data-mode="normal"]  { background: rgba(63,185,80,.18);   color: var(--safe);    }
+#scenario-status[data-mode="warning"] { background: rgba(227,179,65,.2);   color: var(--caution); }
+#scenario-status[data-mode="danger"]  { background: rgba(248,81,73,.18);   color: var(--danger);  }
+#scenario-status[data-mode="error"]   { background: rgba(248,81,73,.18);   color: var(--danger);  }

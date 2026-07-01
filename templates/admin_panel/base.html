@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}관리자{% endblock %} - 산재 예방 통합 관제 시스템</title>
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="app-container">
+
+    {% include 'components/admin_sidebar.html' %}
+    <div class="main-wrapper">
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <button id="adminHamburger" class="hamburger" aria-label="메뉴 열기">☰</button>
+                <a href="/" class="logo-link">
+                    <img src="{% static 'img/logo.jpg' %}" alt="로고" class="logo-img">
+                </a>
+                <h1 class="system-title">산재 예방 통합 관제 시스템</h1>
+                <button class="btn-realtime" onclick="location.href='/dashboard/'">실시간 관제 홈</button>
+            </div>
+            <div class="topbar-right">
+                <div class="admin-info">
+                    <span id="adminName" class="admin-name"></span>
+                    <span id="adminRole" class="admin-email"></span>
+                </div>
+                <button id="btnHome" class="icon-btn" title="홈" aria-label="홈으로 이동">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                </button>
+                <!-- D 옵션 (2026-05-17) — 헤더 미확인 알람 배지. AlarmBadge (alarm-badge.js)
+                     가 fetch + newAlarmEvent 카운트. admin_panel 은 header.html 미사용
+                     (자체 topbar) 이라 같은 #btnAlarmBadge 를 별도 추가. JS·스토어는 공유. -->
+                <button id="btnAlarmBadge" class="icon-btn alarm-badge-btn" title="미확인 알람 — 이력 페이지로" aria-label="미확인 알람 보기">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2z"/>
+                    </svg>
+                    <span class="alarm-badge-count" hidden>0</span>
+                </button>
+                <div class="topbar-actions">
+                    <button id="btnLogout" class="btn-outline">로그아웃</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+</div>
+
+{% include 'components/app_config.html' %}
+<script src="{% static 'js/shared/config.js' %}"></script>
+{# Phase 2 알람 인프라 — admin/main.js 가 Auth/WSClient 의존이라 partial 이 먼저 #}
+{% include 'components/alarm_stack.html' %}
+<script src="{% static 'js/admin/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
