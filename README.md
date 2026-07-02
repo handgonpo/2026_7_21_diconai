@@ -1,223 +1,181 @@
 # AI 네이티브 데이터 플랫폼 엔지니어 과정
-- 중기청 유해가스 관제 플랫폼을 기반으로 한 실시간 데이터 수집·정규화·AI 이상탐지·운영 배포 실습
 
-## 전체 개발순서
+중기청 유해가스 관제 플랫폼을 기반으로 한  
+**실시간 데이터 수집·저장·검증·위험도 판단·AI 이상탐지·운영 배포 실습 프로젝트**입니다.
 
-```
-→ 데이터 계약 정의
-→ Raw 저장
-→ Staging 검증/정규화
-→ Mart 집계/위험판정
-→ AI 이상탐지
-→ 실시간 알림
-→ Docker 운영
-→ Prometheus/Grafana 관측
-→ Kubernetes 배포
-```
-
-## 수업 브랜치 운영 방법
-이 저장소는 AI 네이티브 데이터 플랫폼 엔지니어 과정 수업을 단계별로 따라갈 수 있도록 브랜치 단위로 관리합니다.
-각 브랜치는 하나의 수업 단원을 의미하며, 수업이 진행될 때마다 새로운 브랜치를 생성하여 해당 단계의 코드와 문서를 업로드합니다.
-
-## 수업 브랜치 운영 방법
-
-이 저장소는 `AI 네이티브 데이터 플랫폼 엔지니어 과정` 수업을 단계별로 따라갈 수 있도록 브랜치 단위로 관리합니다.
-
-각 브랜치는 하나의 수업 단원을 의미하며, 수업이 진행될 때마다 새로운 브랜치를 생성하여 해당 단계의 코드와 문서를 업로드합니다.
+이 저장소는 수업을 단계별로 따라갈 수 있도록 브랜치 단위로 관리합니다.
 
 ---
 
-## 1. 수업 브랜치 이름 규칙
+## 1. 프로젝트 목표
+
+본 프로젝트의 목표는 단순한 웹사이트를 만드는 것이 아니라,  
+AI가 사용할 데이터를 안정적으로 수집하고 운영하는 **AI 네이티브 데이터 플랫폼 흐름**을 구현하는 것입니다.
+
+수업에서는 실제 장비를 직접 연결하지 않고, 수업용 가짜 데이터를 생성하여 다음 흐름을 구현합니다.
+
+```text
+Sensor Simulator
+→ Collector API
+→ Raw 저장
+→ Staging 검증/정규화
+→ Mart 생성/위험도 판단
+→ Alarm Service
+→ Dashboard
+→ AI 이상탐지
+→ RAG 대응 매뉴얼
+→ Data Quality Report
+→ Docker / Monitoring / 배포 확장
+```
+
+---
+
+## 2. 수업에서 다루는 데이터
+
+| 데이터 | 예시 | 사용 목적 |
+|---|---|---|
+| 유해가스 데이터 | CO, H2S, CO2, O2 등 | 가스 위험도 판단 |
+| 전력 데이터 | 전류, 전압, 전력, 전원 상태 | 장비 이상 감지 |
+| 작업자 위치 데이터 | worker_id, x, y, zone_id | 위험구역 진입 판단 |
+
+---
+
+## 3. 전체 개발 흐름
+
+본 과정은 다음 순서로 개발합니다.
+
+```text
+0단계: 프로젝트 기준선 문서화
+1단계: Django 화면 구조 정리
+2단계: 데이터 구조 정의
+3단계: DB 모델과 Raw 데이터 저장
+4단계: 데이터 검증과 Mart 데이터 생성
+5단계: Sensor Simulator와 Collector API
+6단계: 위험도 판단과 알람 생성
+7단계: 대시보드 데이터 연결
+8단계: WebSocket 실시간 반영
+9단계: 지도와 지오펜스
+10단계: AI 이상탐지, RAG, 데이터 품질 리포트 확장
+11단계: Docker, Monitoring, 배포 구조 확장
+12단계: 최종 시연과 운영 문서화
+```
+
+자세한 개발 순서는 다음 문서에서 관리합니다.
+
+```text
+docs/branch-roadmap.md
+```
+
+---
+
+## 4. 브랜치 운영 방식
+
+이 저장소는 수업 단계를 브랜치 단위로 관리합니다.
+
+```text
+main
+→ 전체 프로젝트 소개와 기준 안내
+
+2026_7_21_source
+→ 수업 시작 전 초기 소스 기준 브랜치
+
+lesson/*
+→ 수업 단계별 코드와 문서 브랜치
+```
+
+각 브랜치는 하나의 수업 단원 또는 실습 단위를 의미합니다.
+
+---
+
+## 5. 브랜치 이름 규칙
 
 브랜치 이름은 다음 규칙을 사용합니다.
 
-```bash
-lesson/주차번호_수업주제_날짜
+```text
+lesson/단계번호_세부번호_수업주제
 ```
 
 예시:
 
-```bash
-lesson/01_data-contract_20260618
-lesson/02_raw-ingestion_20260619
-lesson/03_staging-normalization_20260620
-lesson/04_mart-risk-evaluation_20260621
-lesson/05_ai-anomaly-detection_20260622
-lesson/06_realtime-alert_20260623
-lesson/07_docker-monitoring_20260624
-lesson/08_kubernetes-deploy_20260625
+```text
+lesson/00_project_baseline_20260721
+lesson/01_01_template_static_structure
+lesson/01_02_dashboard_layout_check
+lesson/02_01_event_dictionary
+lesson/02_02_sensor_event_schema
+lesson/03_01_domain_models
+lesson/03_02_raw_models
+lesson/04_01_staging_models
+lesson/04_03_seed_thresholds
+lesson/05_01_basic_simulator
+lesson/06_01_collect_gas_api
+lesson/07_01_raw_to_staging
+lesson/08_01_dashboard_view_context
+lesson/09_01_channels_setup
+lesson/10_01_leaflet_map_base
+lesson/11_01_threshold_engine
+lesson/12_01_alarm_record_create
+lesson/13_01_ai_inference_service
+lesson/14_02_data_quality_report
+lesson/15_03_final_demo_docs
 ```
 
-> 브랜치명에는 공백을 넣지 않습니다.
-> 한글보다는 영문 소문자, 숫자, 하이픈(`-`), 언더바(`_`) 사용을 권장합니다.
+브랜치명에는 공백을 넣지 않습니다.  
+영문 소문자, 숫자, 하이픈(`-`), 언더바(`_`) 사용을 권장합니다.
 
 ---
 
-## 2. 강사용: 새 수업 브랜치 만드는 방법
+## 6. 새 수업 브랜치 생성 방법
 
-### 2-1. 최신 main 브랜치로 이동
-
-```bash
-git checkout main
-git pull origin main
-```
-
-또는 Git 최신 버전에서는 다음 명령어를 사용할 수 있습니다.
+최신 `main` 브랜치로 이동합니다.
 
 ```bash
 git switch main
 git pull origin main
 ```
 
----
-
-### 2-2. 새 수업 브랜치 생성
-
-예시: 1주차 데이터 계약 정의 수업 브랜치 생성
+새 수업 브랜치를 생성합니다.
 
 ```bash
-git checkout -b lesson/01_data-contract_20260618
+git switch -c lesson/00_project_baseline_20260721
 ```
 
-또는:
-
-```bash
-git switch -c lesson/01_data-contract_20260618
-```
-
----
-
-### 2-3. 수업 코드와 문서 작성 후 변경 사항 확인
+변경 사항을 확인합니다.
 
 ```bash
 git status
 ```
 
----
-
-### 2-4. 변경 파일 추가
-
-전체 파일을 추가할 경우:
+변경 파일을 추가합니다.
 
 ```bash
 git add .
 ```
 
-특정 파일만 추가할 경우:
+커밋합니다.
 
 ```bash
-git add README.md
-git add docs/lessons/01_data_contract.md
-git add backend_drf/
-git add generator_fastapi/
+git commit -m "docs: define project baseline"
+```
+
+GitHub에 브랜치를 업로드합니다.
+
+```bash
+git push -u origin lesson/00_project_baseline_20260721
 ```
 
 ---
 
-### 2-5. 커밋 생성
+## 7. 학생용 브랜치 이동 방법
+
+저장소를 처음 받는 경우:
 
 ```bash
-git commit -m "lesson 01: define sensor data contract"
+git clone https://github.com/handgonpo/2026_7_21_diconai.git
+cd 2026_7_21_diconai
 ```
 
-커밋 메시지 예시:
-
-```bash
-git commit -m "lesson 02: implement raw sensor data ingestion"
-git commit -m "lesson 03: add staging validation and normalization"
-git commit -m "lesson 04: add mart risk evaluation logic"
-git commit -m "lesson 05: connect AI anomaly detection pipeline"
-```
-
----
-
-### 2-6. GitHub에 브랜치 업로드
-
-```bash
-git push origin lesson/01_data-contract_20260618
-```
-
-이후 GitHub 저장소에서 해당 브랜치를 선택하면 수업 단계별 코드를 확인할 수 있습니다.
-
----
-
-## 3. 학생용: 수업 브랜치별 코드 내려받는 방법
-
-학생은 수업 주차에 맞는 브랜치를 선택하여 코드를 내려받으면 됩니다.
-
----
-
-## 방법 1. 저장소를 처음 받는 경우
-
-특정 브랜치만 바로 내려받으려면 다음 명령어를 사용합니다.
-
-```bash
-git clone -b 브랜치명 --single-branch 저장소주소
-```
-
-예시:
-
-```bash
-git clone -b lesson/01_data-contract_20260618 --single-branch https://github.com/handgonpo/diconai-projects.git
-```
-
-폴더명을 직접 지정하고 싶다면 마지막에 폴더명을 붙입니다.
-
-```bash
-git clone -b lesson/01_data-contract_20260618 --single-branch https://github.com/handgonpo/diconai-projects.git diconai-lesson01
-```
-
----
-
-## 방법 2. 저장소 전체를 받은 뒤 브랜치 이동하기
-
-전체 저장소를 먼저 내려받습니다.
-
-```bash
-git clone https://github.com/handgonpo/diconai-projects.git
-```
-
-프로젝트 폴더로 이동합니다.
-
-```bash
-cd diconai-projects
-```
-
-원격 브랜치 목록을 확인합니다.
-
-```bash
-git branch -r
-```
-
-원하는 수업 브랜치로 이동합니다.
-
-```bash
-git switch lesson/01_data-contract_20260618
-```
-
-만약 브랜치가 바로 보이지 않으면 다음 명령어로 원격 브랜치 정보를 갱신합니다.
-
-```bash
-git fetch --all
-```
-
-그 후 다시 브랜치로 이동합니다.
-
-```bash
-git switch lesson/01_data-contract_20260618
-```
-
----
-
-## 방법 3. 이미 저장소를 받은 학생이 다음 수업 브랜치로 이동하는 경우
-
-기존 프로젝트 폴더로 이동합니다.
-
-```bash
-cd diconai-projects
-```
-
-최신 브랜치 정보를 가져옵니다.
+원격 브랜치 정보를 가져옵니다.
 
 ```bash
 git fetch --all
@@ -226,18 +184,18 @@ git fetch --all
 원하는 수업 브랜치로 이동합니다.
 
 ```bash
-git switch lesson/02_raw-ingestion_20260619
+git switch lesson/00_project_baseline_20260721
 ```
 
-해당 브랜치의 최신 코드를 가져옵니다.
+해당 브랜치의 최신 내용을 가져옵니다.
 
 ```bash
-git pull origin lesson/02_raw-ingestion_20260619
+git pull origin lesson/00_project_baseline_20260721
 ```
 
 ---
 
-## 4. 현재 내가 어떤 브랜치에 있는지 확인하기
+## 8. 현재 브랜치 확인 방법
 
 ```bash
 git branch
@@ -247,95 +205,98 @@ git branch
 
 예시:
 
-```bash
-* lesson/01_data-contract_20260618
+```text
+* lesson/00_project_baseline_20260721
   main
 ```
 
----
-
-## 5. 전체 수업 브랜치 목록 확인하기
-
-로컬 브랜치 확인:
-
-```bash
-git branch
-```
-
-원격 브랜치까지 모두 확인:
+원격 브랜치까지 모두 확인하려면 다음 명령어를 사용합니다.
 
 ```bash
 git branch -a
 ```
 
-원격 브랜치만 확인:
-
-```bash
-git branch -r
-```
-
 ---
 
-## 6. 수업 단계별 개발 흐름
-
-본 과정은 중기청 유해가스 관제 플랫폼을 기반으로 다음 순서로 개발합니다.
+## 9. 주요 문서 구조
 
 ```text
-데이터 계약 정의
-→ Raw 저장
-→ Staging 검증/정규화
-→ Mart 집계/위험판정
-→ AI 이상탐지
-→ 실시간 알림
-→ Docker 운영
-→ Prometheus/Grafana 관측
-→ Kubernetes 배포
+README.md
+→ 현재 브랜치의 핵심 안내
+
+docs/
+→ 프로젝트 기준 문서와 수업 설계 문서
+
+sample_events/
+→ 수업용 샘플 이벤트 JSON
+
+seed/
+→ 초기 기준 데이터
 ```
 
-각 단계는 별도의 `lesson` 브랜치로 관리합니다.
+주요 문서 예시는 다음과 같습니다.
 
-예시:
-
-| 단계  | 브랜치 예시                                     | 수업 내용                 |
-| --- | ------------------------------------------ | --------------------- |
-| 1단계 | `lesson/01_data-contract_20260618`         | 센서 데이터 계약 정의          |
-| 2단계 | `lesson/02_raw-ingestion_20260619`         | 원본 Raw 데이터 저장         |
-| 3단계 | `lesson/03_staging-normalization_20260620` | 데이터 검증 및 정규화          |
-| 4단계 | `lesson/04_mart-risk-evaluation_20260621`  | Mart 집계 및 위험 판정       |
-| 5단계 | `lesson/05_ai-anomaly-detection_20260622`  | AI 이상탐지 결과 연동         |
-| 6단계 | `lesson/06_realtime-alert_20260623`        | WebSocket 실시간 알림      |
-| 7단계 | `lesson/07_docker-monitoring_20260624`     | Docker 기반 통합 실행       |
-| 8단계 | `lesson/08_kubernetes-deploy_20260625`     | Kubernetes 배포 및 운영 검증 |
+```text
+docs/current-state.md
+docs/project-overview.md
+docs/project-scope.md
+docs/sensor-data-definition.md
+docs/threshold-definition.md
+docs/system-context.md
+docs/final-demo-scenario.md
+docs/pattern-application-map.md
+docs/branch-roadmap.md
+```
 
 ---
 
-## 7. 학생 실습 권장 흐름
+## 10. 실행 방법
 
-학생은 각 수업마다 다음 순서로 실습합니다.
-
-```bash
-git fetch --all
-git switch 수업브랜치명
-git pull origin 수업브랜치명
-```
-
-예시:
+가상환경을 생성합니다.
 
 ```bash
-git fetch --all
-git switch lesson/03_staging-normalization_20260620
-git pull origin lesson/03_staging-normalization_20260620
+python -m venv .venv
 ```
 
-이후 README 또는 `docs/lessons/` 폴더의 수업 문서를 참고하여 실습을 진행합니다.
+가상환경을 실행합니다.
+
+Windows PowerShell:
+
+```bash
+.venv\Scripts\activate
+```
+
+macOS / Linux / WSL:
+
+```bash
+source .venv/bin/activate
+```
+
+패키지를 설치합니다.
+
+```bash
+pip install -r requirements.txt
+```
+
+Django 서버를 실행합니다.
+
+```bash
+python manage.py runserver
+```
+
+브라우저에서 다음 주소로 접속합니다.
+
+```text
+http://127.0.0.1:8000/
+```
 
 ---
 
-## 8. 브랜치 사용 시 주의사항
+## 11. 브랜치 사용 시 주의사항
 
 수업 브랜치에서 개인 실습 코드를 수정한 경우, 다음 브랜치로 이동할 때 충돌이 발생할 수 있습니다.
 
-현재 변경 사항을 확인하려면 다음 명령어를 사용합니다.
+현재 변경 사항을 확인합니다.
 
 ```bash
 git status
@@ -357,22 +318,46 @@ git stash pop
 
 ---
 
-## 9. 추천 브랜치 운영 원칙
+## 12. 최종 시연 목표
+
+최종 시연은 기능 목록이 아니라 **데이터가 흐르는 장면**으로 보여줍니다.
 
 ```text
-main = 최종 완성본
-lesson/* = 수업 단계별 코드
-docs/lessons/* = 각 수업 설명 문서
+1. Sensor Simulator가 센서 데이터를 생성한다.
+2. Collector API가 데이터를 수집한다.
+3. DB에 데이터가 저장된다.
+4. 위험도 판단 기준에 따라 normal / warning / danger가 결정된다.
+5. 위험 상태가 발생하면 알람이 생성된다.
+6. 대시보드에 센서 상태와 알람이 표시된다.
+7. 작업자가 위험구역에 들어가면 지오펜스 알람이 발생한다.
+8. 이후 AI 이상탐지, RAG 대응 매뉴얼, 데이터 품질 리포트로 확장한다.
 ```
 
-브랜치는 매번 무작정 생성하지 않고, 하나의 수업 단원이 완성될 때마다 생성합니다.
+---
+
+## 13. 추천 브랜치 운영 원칙
 
 ```text
-좋은 예:
-lesson/01_data-contract_20260618
-lesson/02_raw-ingestion_20260619
+main = 전체 프로젝트 소개와 기준 안내
+2026_7_21_source = 수업 시작 전 초기 소스
+lesson/* = 수업 단계별 코드와 문서
+docs/* = 프로젝트 기준 문서
+sample_events/* = 샘플 이벤트 데이터
+seed/* = 초기 기준 데이터
+```
 
-나쁜 예:
+좋은 브랜치명 예시:
+
+```text
+lesson/00_project_baseline_20260721
+lesson/01_01_template_static_structure
+lesson/02_01_event_dictionary
+lesson/03_01_domain_models
+```
+
+피해야 할 브랜치명 예시:
+
+```text
 test1
 new
 update
@@ -381,4 +366,4 @@ final-real
 final-real-last
 ```
 
-브랜치 이름만 보아도 어떤 수업 단계인지 알 수 있도록 관리
+브랜치 이름만 보아도 어떤 수업 단계인지 알 수 있도록 관리합니다.
