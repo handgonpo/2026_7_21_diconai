@@ -99,38 +99,12 @@ python manage.py migrate
 uv run python manage.py migrate
 ```
 
-주의: 아래 명령어는 잘못된 명령어이다.
-
-```bash
-uv python manage.py migrate
-```
-
 ---
 
 ### 8. 서버 실행
 
 ```bash
 python manage.py runserver 8010
-```
-
-또는 8001 포트로 실행하려면 다음처럼 입력한다.
-
-```bash
-python manage.py runserver 8001
-```
-
-주의: `runserver`와 포트 번호 사이에는 반드시 공백이 있어야 한다.
-
-잘못된 예:
-
-```bash
-python manage.py runserver8001
-```
-
-올바른 예:
-
-```bash
-python manage.py runserver 8001
 ```
 
 ---
