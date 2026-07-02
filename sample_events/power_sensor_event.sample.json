@@ -1,0 +1,19 @@
+{
+  "event_id": "power-20260721-000001",
+  "schema_version": "1.0",
+  "event_type": "power_sensor_measured",
+  "source_system": "sensor_simulator",
+  "device_id": "PWR-001",
+  "device_name": "Smart Power System A",
+  "software_version": "1.0.0",
+  "measured_at": "2026-07-21T09:00:00",
+  "ingested_at": "2026-07-21T09:00:01",
+  "payload": {
+    "channel_id": "slave01",
+    "power_status": 255,
+    "current": 12.5,
+    "voltage": 220,
+    "power": 2750
+  },
+  "quality_status": "raw"
+}

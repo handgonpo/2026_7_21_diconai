@@ -1,0 +1,16 @@
+{
+  "event_id": "worker-20260721-000001",
+  "schema_version": "1.0",
+  "event_type": "worker_location_measured",
+  "source_system": "worker_location_simulator",
+  "worker_id": "W-001",
+  "worker_name": "작업자 1",
+  "measured_at": "2026-07-21T09:00:00",
+  "ingested_at": "2026-07-21T09:00:01",
+  "payload": {
+    "x": 320,
+    "y": 180,
+    "zone_id": "ZONE-A"
+  },
+  "quality_status": "raw"
+}

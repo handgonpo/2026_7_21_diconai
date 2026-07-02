@@ -1,0 +1,92 @@
+[
+  {
+    "gas_type": "co",
+    "unit": "ppm",
+    "normal_min": null,
+    "normal_max": 25,
+    "warning_min": 25,
+    "warning_max": 200,
+    "danger_min": 200,
+    "danger_max": null
+  },
+  {
+    "gas_type": "h2s",
+    "unit": "ppm",
+    "normal_min": null,
+    "normal_max": 10,
+    "warning_min": 10,
+    "warning_max": 15,
+    "danger_min": 15,
+    "danger_max": null
+  },
+  {
+    "gas_type": "co2",
+    "unit": "ppm",
+    "normal_min": null,
+    "normal_max": 1000,
+    "warning_min": 1000,
+    "warning_max": 5000,
+    "danger_min": 5000,
+    "danger_max": null
+  },
+  {
+    "gas_type": "o2",
+    "unit": "%",
+    "normal_min": 18,
+    "normal_max": 23.5,
+    "warning_min": 16,
+    "warning_max": 18,
+    "danger_min": null,
+    "danger_max": 16
+  },
+  {
+    "gas_type": "no2",
+    "unit": "ppm",
+    "normal_min": null,
+    "normal_max": 3,
+    "warning_min": 3,
+    "warning_max": 5,
+    "danger_min": 5,
+    "danger_max": null
+  },
+  {
+    "gas_type": "so2",
+    "unit": "ppm",
+    "normal_min": null,
+    "normal_max": 2,
+    "warning_min": 2,
+    "warning_max": 5,
+    "danger_min": 5,
+    "danger_max": null
+  },
+  {
+    "gas_type": "o3",
+    "unit": "ppm",
+    "normal_min": null,
+    "normal_max": 0.06,
+    "warning_min": 0.06,
+    "warning_max": 0.12,
+    "danger_min": 0.12,
+    "danger_max": null
+  },
+  {
+    "gas_type": "nh3",
+    "unit": "ppm",
+    "normal_min": null,
+    "normal_max": 25,
+    "warning_min": 25,
+    "warning_max": 35,
+    "danger_min": 35,
+    "danger_max": null
+  },
+  {
+    "gas_type": "voc",
+    "unit": "ppm",
+    "normal_min": null,
+    "normal_max": 0.5,
+    "warning_min": 0.5,
+    "warning_max": 1.0,
+    "danger_min": 1.0,
+    "danger_max": null
+  }
+]

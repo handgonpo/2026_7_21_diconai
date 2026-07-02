@@ -1,0 +1,23 @@
+{
+  "event_id": "gas-20260721-000001",
+  "schema_version": "1.0",
+  "event_type": "gas_sensor_measured",
+  "source_system": "sensor_simulator",
+  "device_id": "GAS-001",
+  "device_name": "Gas Sensor A",
+  "software_version": "1.0.0",
+  "measured_at": "2026-07-21T09:00:00",
+  "ingested_at": "2026-07-21T09:00:01",
+  "payload": {
+    "co": 18,
+    "h2s": 4,
+    "co2": 600,
+    "o2": 20.8,
+    "no2": 1,
+    "so2": 1,
+    "o3": 0.03,
+    "nh3": 12,
+    "voc": 0.2
+  },
+  "quality_status": "raw"
+}
