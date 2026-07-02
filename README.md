@@ -9,27 +9,167 @@
 - Django 기본 구조에서 accounts/login, dashboard 화면 렌더링
 - 이후 수업 단계에서 models.py, views.py, API, WebSocket, AI 기능을 다시 구현
 
-## 실행 방법
+## 소스 내려받기 및 실행 방법
+이 프로젝트는 GitHub의 `2026_7_21_source` 브랜치를 기준으로 내려받아 실행한다.
 
-1. 가상환경 생성
+---
 
-python3 -m venv .venv
+### 1. 작업 폴더로 이동
 
-2. 가상환경 실행
+```bash
+cd ~/2026_6-17_diconai
+```
+
+---
+
+### 2. 소스 클론
+
+```bash
+git clone -b 2026_7_21_source --single-branch https://github.com/handgonpo/2026_7_21_diconai.git 2026_7_21_source
+```
+
+위 명령어는 GitHub 저장소에서 `2026_7_21_source` 브랜치만 내려받아  
+내 컴퓨터에 `2026_7_21_source` 폴더로 저장한다.
+
+---
+
+### 3. 프로젝트 폴더로 이동
+
+```bash
+cd 2026_7_21_source
+```
+
+현재 브랜치를 확인한다.
+
+```bash
+git branch
+```
+
+정상이라면 다음처럼 표시된다.
+
+```text
+* 2026_7_21_source
+```
+
+---
+
+### 4. 가상환경 생성
+
+```bash
+uv venv
+```
+
+---
+
+### 5. 가상환경 실행
+
+```bash
+source .venv/bin/activate
+```
+
+가상환경이 정상 실행되면 터미널 앞에 `(.venv)`가 표시된다.
+
+---
+
+### 6. 패키지 설치
+
+```bash
+uv pip install -r requirements.txt
+```
+
+Django가 설치되었는지 확인하려면 다음 명령어를 사용한다.
+
+```bash
+python -m django --version
+```
+
+---
+
+### 7. 기본 DB 생성
+
+가상환경이 실행된 상태라면 아래 명령어를 사용한다.
+
+```bash
+python manage.py migrate
+```
+
+또는 `uv run`을 사용하려면 다음처럼 실행한다.
+
+```bash
+uv run python manage.py migrate
+```
+
+주의: 아래 명령어는 잘못된 명령어이다.
+
+```bash
+uv python manage.py migrate
+```
+
+---
+
+### 8. 서버 실행
+
+```bash
+python manage.py runserver 8010
+```
+
+또는 8001 포트로 실행하려면 다음처럼 입력한다.
+
+```bash
+python manage.py runserver 8001
+```
+
+주의: `runserver`와 포트 번호 사이에는 반드시 공백이 있어야 한다.
+
+잘못된 예:
+
+```bash
+python manage.py runserver8001
+```
+
+올바른 예:
+
+```bash
+python manage.py runserver 8001
+```
+
+---
+
+### 9. 브라우저 접속
+
+서버 실행 후 브라우저에서 아래 주소로 접속한다.
+
+```text
+http://127.0.0.1:8010/
+```
+
+8001 포트로 실행했다면 아래 주소로 접속한다.
+
+```text
+http://127.0.0.1:8001/
+```
+
+---
+
+## 전체 명령어 한 번에 정리
+
+```bash
+cd ~/2026_6-17_diconai
+
+git clone -b 2026_7_21_source --single-branch https://github.com/handgonpo/2026_7_21_diconai.git 2026_7_21_source
+
+cd 2026_7_21_source
+
+uv venv
 
 source .venv/bin/activate
 
-3. 패키지 설치
-
-pip install -r requirements.txt
-
-4. 기본 DB 생성
+uv pip install -r requirements.txt
 
 python manage.py migrate
 
-5. 서버 실행
-
 python manage.py runserver 8010
+```
 
 ## 접속 주소
 
