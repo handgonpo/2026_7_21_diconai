@@ -8,7 +8,7 @@
 
 ```text
 lesson/00_project_baseline_20260721
-
+```
 
 목표:
 ```text
@@ -19,7 +19,7 @@ lesson/00_project_baseline_20260721
 최종 시연 시나리오 작성
 패턴 적용 맵 작성
 이후 브랜치 로드맵 확정
-
+```
 
 ## 3. 이후 개발 브랜치
 
